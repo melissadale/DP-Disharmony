@@ -38,7 +38,7 @@ def generate_data():
             results[instance].append(score)
               
     # populate proximity_matrix csv with edit_distance scores
-    score_writer = csv.writer(open('proximity_matrix.csv','at', encoding='utf8'))
+    score_writer = csv.writer(open('proximity_matrix.csv', 'at', encoding='utf8'))
     
     # header
     score_writer.writerow(spec_names)    
@@ -51,7 +51,7 @@ def generate_data():
 def edit_distance(lines1, lines2):
     """
     Given two files, return the distance between the two
-    Opperations: Add, Delete, Indent
+    operations: Add, Delete, Indent
     """
     m = len(lines1)
     n = len(lines2)
@@ -68,24 +68,24 @@ def edit_distance(lines1, lines2):
     # if lines are equivalent, move to next set of lines
     if lines1[index1] == lines2[index2]:
         while lines1[index1] == lines2[index2]:
-            index1 = index1 + 1
-            index2 = index2 + 1
+            index1 += 1
+            index2 += 1
 
     #  we will skip indented lines (which indicates conditionals) for now
     if lines1[index1].startswith('\t'):
         while lines1[index1].startswith('\t'):
-            index1 = index1 + 1 
+            index1 += 1
             if index1 == m:  # we've reached the end
                 break
     if lines2[index2].startswith('\t'):
         while lines2[index2].startswith('\t'):
-            index2 = index2+1
-            if index2 == n: # we've reached the end
+            index2 += 1
+            if index2 == n:  # we've reached the end
                 break
 
     # recursive cases
-    add = edit_distance(lines1[index1:m], lines2[index2+1:n]) +1
-    delete = edit_distance(lines1[index1+1:m], lines2[index2:n]) +1
+    add = edit_distance(lines1[index1:m], lines2[index2+1:n]) + 1
+    delete = edit_distance(lines1[index1+1:m], lines2[index2:n]) + 1
 
     return min([add, delete])
 
@@ -104,18 +104,18 @@ def find_files():
         print(path)
         for file in filenames:
 
-            fileName, fileExtension = os.path.splitext(file)
-            extended_fileName = str(path) + "-" + fileName
+            filename, file_extension = os.path.splitext(file)
+            extended_filename = str(path) + "-" + filename
             
             #  only add the text files to dictionary - note the funny notation/approach is
             #  to make formatting the csv easier
-            if fileExtension == ".txt":
-                if fileName.endswith("_spec"):
-                    SPECS[str(fileName)] = path+ "\\"+ file
+            if file_extension == ".txt":
+                if filename.endswith("_spec"):
+                    SPECS[str(filename)] = path + "\\" + file
                     #  SPECS[str(fileName)].append(fileName)
                 else:
-                    INSTANCES[str(extended_fileName)]=path+ "\\"+file
-                    #  INSTANCES[str(extended_fileName)].append(extended_fileName)
+                    INSTANCES[str(extended_filename)] = path + "\\" + file
+                    #  INSTANCES[str(extended_filename)].append(extended_filename)
 
 
 def print_dict(dictionary):
@@ -135,9 +135,5 @@ def file_len(fname):
             pass
     return i + 1
 
-
-
-
-
-
+# go and generate the results
 generate_data()
