@@ -3,8 +3,8 @@ import csv
 import os
 from collections import defaultdict
 
-SPECS = defaultdict()  # dictionary with key of spec file names, values of spec files
-INSTANCES = defaultdict()  # dictionary with key of instance file names, values of instance files
+SPECS = defaultdict()  # dictionary with key of the file names containing defined design pattern scope
+INSTANCES = defaultdict()  # dictionary with key of file name for identified/implemented design patterns
 
 
 def generate_data():
@@ -17,7 +17,7 @@ def generate_data():
     find_files()
 
     # separate the names from the specs and instances for creating the CSV
-    spec_names = [['MATRIX']]  # list of pattern specs ('Matrix' is at the front so that the rest of the cells will align properly)
+    spec_names = [['MATRIX']]  # list of pattern specs
     instances_names = []  # list of instance_names
     results = defaultdict(list)
     for key, values in SPECS.items():
@@ -87,6 +87,7 @@ def edit_distance(lines1, lines2):
     add = edit_distance(lines1[index1:m], lines2[index2+1:n]) + 1
     delete = edit_distance(lines1[index1+1:m], lines2[index2:n]) + 1
 
+    # return the minimum distance
     return min([add, delete])
 
 
