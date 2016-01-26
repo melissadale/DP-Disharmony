@@ -4,8 +4,8 @@ import os
 import math
 from collections import defaultdict
 
-SPECS = defaultdict()   # dictionary with key of spec file names, values of spec files
-INSTANCES = defaultdict()  # dictionary with key of instance file names, values of instance files
+SPECS = defaultdict()  # dictionary with key of the file names containing defined design pattern specifications
+INSTANCES = defaultdict()  # dictionary with key of file name for identified/implemented design patterns
 centroids = defaultdict(list)
 results = defaultdict(list)
 spec_list = []
@@ -53,7 +53,11 @@ def generate_data():
 
 def edit_distance(lines1, lines2):
     """
-    Given two files, return the distance between the two
+    :param lines1: first file for comparison, represented as an array of strings
+    :param lines2: second file for comparison, represented as an array of strings
+
+    Given two files, lines1 and lines2,
+    return the distance between the two
     Operations: Add, Delete, Indent
     """
 
@@ -131,19 +135,14 @@ def find_files():
 
 def print_dict(dictionary):
     """
+    :param dictionary: a dictionary to be printed out
+
     For testing purposes, it's helpful to be able to print a dictionary (defaultdict)
     to see what values are being stored as keys and their values
     """
     for key, item in dictionary.items():
         print("===================Key:" + key)
         print(item)
-
-
-def file_len(fname):
-    with open(fname) as f:
-        for i, l in enumerate(f):
-            pass
-    return i + 1
 
 
 def generate_centroids():
