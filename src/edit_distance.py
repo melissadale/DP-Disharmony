@@ -3,7 +3,7 @@ import csv
 import os
 from collections import defaultdict
 
-SPECS = defaultdict()  # dictionary with key of the file names containing defined design pattern scope
+SPECS = defaultdict()  # dictionary with key of the file names containing defined design pattern specifications
 INSTANCES = defaultdict()  # dictionary with key of file name for identified/implemented design patterns
 
 
@@ -53,19 +53,20 @@ def edit_distance(lines1, lines2):
     Given two files, return the distance between the two
     operations: Add, Delete, Indent
     """
-    m = len(lines1)
-    n = len(lines2)
+    m = len(lines1) - 1  # number of lines in file1
+    n = len(lines2) - 1  # number of lines in file2
 
+    # base cases - no more lines to compare in the files
+    if m == 0:
+        return n
+    if n == 0:
+        return m
+
+    # indices to loop through the input
     index1 = 0
     index2 = 0
-   
-    # base cases
-    if m == 0:  # no more elements in lines1
-        return n 
-    if n == 0:  # no more elements in lines2
-        return m 
 
-    # if lines are equivalent, move to next set of lines
+    # if lines are equivalent, move to next line, and keep going until they are not
     if lines1[index1] == lines2[index2]:
         while lines1[index1] == lines2[index2]:
             index1 += 1
@@ -102,12 +103,11 @@ def find_files():
 
     # path, parent dir(?), filename w/ extension
     for path, dirnames, filenames in os.walk('.'):
-        print(path)
         for file in filenames:
 
             filename, file_extension = os.path.splitext(file)
             extended_filename = str(path) + "-" + filename
-            
+
             #  only add the text files to dictionary - note the funny notation/approach is
             #  to make formatting the csv easier
             if file_extension == ".txt":
@@ -118,6 +118,8 @@ def find_files():
                     INSTANCES[str(extended_filename)] = path + "\\" + file
                     #  INSTANCES[str(extended_filename)].append(extended_filename)
 
+        print_dict(INSTANCES)
+        print_dict(SPECS)
 
 def print_dict(dictionary):
     """
@@ -130,11 +132,11 @@ def print_dict(dictionary):
         print(item)
 
 
-def file_len(fname):
-    with open(fname) as f:
-        for i, l in enumerate(f):
-            pass
-    return i + 1
+# def file_len(fname):
+#     with open(fname) as f:
+#         for i, l in enumerate(f):
+#             pass
+#     return i + 1
 
 # go and generate the results
 generate_data()

@@ -1,0 +1,23 @@
+lifeline:client
+lifeline:drawable
+lifeline:displaylist
+lifeline:layouter
+lifeline:surface
+lifeline:redraw
+message:client->drawable
+messageReturn:drawable->client
+message:client->displaylist
+messageReturn:displaylist->client
+message:client->drawable
+messageReturn:drawable->client
+ifConditional:
+	message:client->layouter
+	messageReturn:layouter->client
+message:client->client
+message:client->drawable
+messageReturn:drawable->client
+ifConditional:
+	message:client->surface
+	messageReturn:surface->client
+message:client->redraw
+messageReturn:redraw->client
