@@ -1,14 +1,13 @@
-import filecmp
 import csv
 import os
 import math
 from collections import defaultdict
 
-SPECS = defaultdict()  # dictionary with key of the file names containing defined design pattern specifications
-INSTANCES = defaultdict()  # dictionary with key of file name for identified/implemented design patterns
-centroids = defaultdict(list)
-results = defaultdict(list)
-spec_list = []
+SPECS = defaultdict()  # defined design pattern specifications
+INSTANCES = defaultdict()  # identified/implemented design patterns
+CENTROIDS = defaultdict(list)  # distances between specifications
+RESULTS = defaultdict(list)
+SPEC_LIST = []
 
 
 def generate_data():
@@ -38,7 +37,7 @@ def generate_data():
 
             score = edit_distance(spec_lines, instance_lines)
             print("====SCORE: "+str(score))
-            results[instance].append(score)
+            RESULTS[instance].append(score)
 
     # populate proximity_matrix csv with edit_distance scores
     score_writer = csv.writer(open('proximity_matrix.csv', 'at', encoding='utf8'))
@@ -46,7 +45,7 @@ def generate_data():
     # header
     score_writer.writerow(spec_names)
     # write rows of scores
-    for instance, scores in results.items():
+    for instance, scores in RESULTS.items():
         temp_list = [instance]+scores
         score_writer.writerow(temp_list)
 
@@ -146,65 +145,78 @@ def print_dict(dictionary):
 
 
 def generate_centroids():
+    """
+    Sets up the design pattern specifications as the centroids
+    :return:
+    """
     for spec, spec_file in SPECS.items():
         spec_file = open(SPECS.get(spec), 'r')   # open Spec file
         spec_lines = spec_file.readlines()   # break down spec file into list of lines
         for spec_find, spec_file_find in SPECS.items():
             spec_file_find = open(SPECS.get(spec_find), 'r')   # open Spec file
             spec_lines_find = spec_file_find.readlines()   # break down spec file into list of lines
+
+            # get the difference between the specks (?)
             spec_diff = edit_distance(spec_lines, spec_lines_find)
+
+            # remove the "_spec" at the end of the pattern name
             short_pattern = str(spec_find).replace("_spec", "")
-            centroids[short_pattern].append(spec_diff)
+            print("-------")
+            print(spec_diff)
+            print("-------")
+            # distance between pattern text-book definitions
+            CENTROIDS[short_pattern].append(spec_diff)
+
     # populate proximity_matrix csv with edit_distance scores
     centroid_writer = csv.writer(open('proximity_matrix_specs.csv', 'at', encoding='utf8'))
-    for spec_find, spec_diff in centroids.items():
+    for spec_find, spec_diff in CENTROIDS.items():
         temp_list = [spec_find] + spec_diff
         centroid_writer.writerow(temp_list)
 
 
 def get_distances():
     rq1 = defaultdict(list)
-    for i in range(len(centroids.keys())):
-        spec_list.append("temp")
+    for i in range(len(CENTROIDS)):
+        SPEC_LIST.append("temp")
 
-    for key in centroids.keys():
+    for key in CENTROIDS.keys():
         placement = 0
-        for dist in centroids[key]:
+        for dist in CENTROIDS[key]:
             if dist == 0:
-                spec_list[placement] = key
+                SPEC_LIST[placement] = key
             else:
                 placement += 1
 
     # Provides output for RQ1
-    for key in results:
+    for key in RESULTS:
         pattern_instance = key.rsplit("-")[0][2:]
         spot = -1
-        for i in range(len(spec_list)):
-            if pattern_instance == spec_list[i]:
+        for i in range(len(SPEC_LIST)):
+            if pattern_instance == SPEC_LIST[i]:
                 spot = i
 
         rq1[key].append(0)  # expected difference
-        rq1[key].append(results[key][spot])  # actual difference
+        rq1[key].append(RESULTS[key][spot])  # actual difference
         print(rq1[key])
 
     # Provides output for RQ2
     rq2 = defaultdict(list)
-    for key in results:
+    for key in RESULTS:
         pattern_instance = key.rsplit("-")[0][2:]
-        rq2[pattern_instance].append(euclidean_dist(centroids[pattern_instance], results[key]))
+        rq2[pattern_instance].append(euclidean_dist(CENTROIDS[pattern_instance], RESULTS[key]))
 
     print(rq2)
 
     writer3 = open('prox.out', 'w')
 
-    for key in results.keys():
+    for key in RESULTS.keys():
         writer3.write('%s ' % key)
-        for value in results[key]:
+        for value in RESULTS[key]:
             writer3.write('& %s ' % value)
         writer3.write('\\\\ \\hline\n')
-    for key in centroids.keys():
+    for key in CENTROIDS.keys():
         writer3.write('%s ' % key)
-        for value in centroids[key]:
+        for value in CENTROIDS[key]:
             writer3.write('& %s ' % value)
         writer3.write('\\\\ \\hline\n')
 
