@@ -6,7 +6,7 @@ from collections import defaultdict
 SPECS = defaultdict()  # defined design pattern specifications
 INSTANCES = defaultdict()  # identified/implemented design patterns
 CENTROIDS = defaultdict(list)  # distances between specifications
-RESULTS = defaultdict(list)
+RESULTS = defaultdict(list)  #matrix of distances
 SPEC_LIST = []
 
 
@@ -16,12 +16,12 @@ def generate_data():
     in the directory via the find_files function
     """
 
-    #  grab files in directory
+    #  grab files and populate SPECS, INSTANCES dictionary
     find_files()
 
     #  separate the names from the specs and instances for creating the CSV
-    spec_names = [['MATRIX']]   # list of pattern specs
-    instances_names = []   # list of instance_names
+    spec_names = [['MATRIX']]
+    instances_names = []
     for key, values in SPECS.items():
         spec_names.append(key)
     for key, values in INSTANCES.items():
@@ -29,14 +29,15 @@ def generate_data():
 
     # calculate the scores
     for spec, spec_file in SPECS.items():
-        spec_file = open(SPECS.get(spec), 'r')  # open Spec file
-        spec_lines = spec_file.readlines()  # break down spec file into list of lines
+        spec_file = open(SPECS.get(spec), 'r')
+        # break down into list of lines (as required for calculation functions)
+        spec_lines = spec_file.readlines()
+
         for instance, instance_file in INSTANCES.items():
-            instance_file = open(INSTANCES.get(instance), 'r')  # open instance file
-            instance_lines = instance_file.readlines()  # break down into list of lines
+            instance_file = open(INSTANCES.get(instance), 'r')
+            instance_lines = instance_file.readlines()
 
             score = edit_distance(spec_lines, instance_lines)
-            print("====SCORE: "+str(score))
             RESULTS[instance].append(score)
 
     # populate proximity_matrix csv with edit_distance scores
@@ -46,7 +47,7 @@ def generate_data():
     score_writer.writerow(spec_names)
     # write rows of scores
     for instance, scores in RESULTS.items():
-        temp_list = [instance]+scores
+        temp_list = [instance] + scores
         score_writer.writerow(temp_list)
 
 
@@ -67,11 +68,11 @@ def edit_distance(lines1, lines2):
     index2 = 0
 
     # base cases
-    if lines1 == lines2:   # the lines are equivalent between files
+    if lines1 == lines2:
         return 0
-    if m == 0:   # no more elements in lines1
+    if m == 0:
         return n
-    if n == 0:   # no more elements in lines2
+    if n == 0:
         return m
 
     # if lines are equivalent, move to next set of lines
@@ -80,26 +81,24 @@ def edit_distance(lines1, lines2):
             index1 += 1
             index2 += 1
 
-            # I added the following to cover cases where lines1=lines2
-            # We were getting an array index oob
             if index1 + 1 == m:
                 break
             if index2 + 1 == n:
                 break
 
-    #  we will skip indented lines (which indicates conditionals) for now
+    #  TODO: add handling for indents/conditionals, skip for now
     if lines1[index1].startswith('\t'):
         while lines1[index1].startswith('\t'):
             index1 += 1
-            if index1 == m:   # we've reached the end
+            if index1 == m:
                 break
     if lines2[index2].startswith('\t'):
         while lines2[index2].startswith('\t'):
             index2 += 1
-            if index2 == n:   # we've reached the end
+            if index2 == n:
                 break
 
-    # recursive cases
+    # all power to the recursion
     add = edit_distance(lines1[index1:m], lines2[index2+1:n]) + 1
     delete = edit_distance(lines1[index1+1:m], lines2[index2:n]) + 1
 
@@ -136,7 +135,7 @@ def print_dict(dictionary):
     """
     :param dictionary: a dictionary to be printed out
 
-    For testing purposes, it's helpful to be able to print a dictionary (defaultdict)
+    Helper Function for testing purposes, it's helpful to be able to print a dictionary (defaultdict)
     to see what values are being stored as keys and their values
     """
     for key, item in dictionary.items():
@@ -147,11 +146,14 @@ def print_dict(dictionary):
 def generate_centroids():
     """
     Sets up the design pattern specifications as the centroids
-    :return:
+
+    There is a lot of duplicated calculations in this method. Needs
+    refactoring.
     """
     for spec, spec_file in SPECS.items():
-        spec_file = open(SPECS.get(spec), 'r')   # open Spec file
-        spec_lines = spec_file.readlines()   # break down spec file into list of lines
+        spec_file = open(SPECS.get(spec), 'r')
+        spec_lines = spec_file.readlines()
+
         for spec_find, spec_file_find in SPECS.items():
             spec_file_find = open(SPECS.get(spec_find), 'r')   # open Spec file
             spec_lines_find = spec_file_find.readlines()   # break down spec file into list of lines
@@ -161,9 +163,7 @@ def generate_centroids():
 
             # remove the "_spec" at the end of the pattern name
             short_pattern = str(spec_find).replace("_spec", "")
-            print("-------")
-            print(spec_diff)
-            print("-------")
+
             # distance between pattern text-book definitions
             CENTROIDS[short_pattern].append(spec_diff)
 
@@ -187,7 +187,7 @@ def get_distances():
             else:
                 placement += 1
 
-    # Provides output for RQ1
+    # Provides output for RQ1 (Research Question 1)
     for key in RESULTS:
         pattern_instance = key.rsplit("-")[0][2:]
         spot = -1
@@ -199,7 +199,7 @@ def get_distances():
         rq1[key].append(RESULTS[key][spot])  # actual difference
         print(rq1[key])
 
-    # Provides output for RQ2
+    # Provides output for RQ2 (Research Question 2)
     rq2 = defaultdict(list)
     for key in RESULTS:
         pattern_instance = key.rsplit("-")[0][2:]
